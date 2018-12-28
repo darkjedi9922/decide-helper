@@ -1,0 +1,10 @@
+{
+    "python.linting.enabled": false,
+    "python.formatting.provider": "none",
+    "python.unitTest.unittestEnabled": false,
+    "python.unitTest.pyTestEnabled": true,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.pyTestArgs": [
+        "tests.py"
+    ]
+}

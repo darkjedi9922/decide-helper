@@ -1,0 +1,28 @@
+{
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current file",
+            "type": "pythonExperimental",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "PyTest: Current file",
+            "type": "pythonExperimental",
+            "request": "launch",
+            "stopOnEntry": false,
+            "module": "pytest",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "${file}",
+                "-vv"
+            ]
+        }
+    ]
+}
