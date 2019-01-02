@@ -211,18 +211,18 @@ class TestDecision:
 
     def testSort(self, decision, altA, altB, altC):
         expected = [
-            {altC: 0.388},
-            {altA: 0.339},
-            {altB: 0.273} 
+            [altC, 0.388],
+            [altA, 0.339],
+            [altB, 0.273] 
         ]
         real = decision.sort()
         assert real == expected
 
     def testReverseSort(self, decision, altA, altB, altC):
         expected = [
-            {altB: 0.273}, 
-            {altA: 0.339}, 
-            {altC: 0.388}
+            [altB, 0.273], 
+            [altA, 0.339], 
+            [altC, 0.388]
         ]
         real = decision.sort(reverse=True)
         assert real == expected

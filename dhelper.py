@@ -175,7 +175,7 @@ class Decision:
         items = self._decision.items()
         sortKey = lambda args: args[1]
         for key, value in sorted(items, key=sortKey, reverse=not reverse):
-            sortedAlternatives.append({key: value})
+            sortedAlternatives.append([key, value])
         return sortedAlternatives
 
 class Matrix:
