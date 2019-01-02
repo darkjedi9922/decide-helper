@@ -99,6 +99,22 @@ class TestNet:
         real = net.decide(roundDigits=3)
         assert real.equals(expected)
 
+    def testAlternativeIterator(self, net, altA, altB, altC):
+        it = net.getAlternativeIterator()
+        count = 0
+        for item in it:
+            count += 1
+            assert item == altA or item == altB or item == altC
+        assert count == 3
+
+    def testFactorIterator(self, net, facA, facB):
+        it = net.getFactorIterator()
+        count = 0
+        for item in it:
+            count += 1
+            assert item == facA or item == facB
+        assert count == 2
+
 class TestNetCompareConverting:
     @pytest.fixture
     def factor1(self):
