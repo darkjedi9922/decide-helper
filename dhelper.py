@@ -29,11 +29,20 @@ class Net:
     def addFactors(self, factors):
         self._factors.extend(factors)
 
+    def getFactorIterator(self):
+        return iter(self._factors)
+
+    def hasFactor(self, factor):
+        return factor in self._factors
+
     def addAlternative(self, alternative):
         self._alternatives.append(alternative)
 
     def addAlternatives(self, alternatives):
         self._alternatives.extend(alternatives)
+
+    def getAlternativeIterator(self):
+        return iter(self._alternatives)
 
     def hasAlternative(self, alt):
         return alt in self._alternatives
