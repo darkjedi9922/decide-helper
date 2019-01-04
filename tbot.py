@@ -3,6 +3,7 @@
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import dhelper.base as dhelper
+import dhelper.tbot as tbot
 import telegram
 import logging
 
@@ -12,90 +13,48 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-chats = {}
-
-class SessionIsNotStartedError(telegram.TelegramError):
-    def __init__(self):
-        super().__init__("")
-
-def requireNet(update):
-    chatId = update.effective_chat.id
-    if chatId not in chats:
-        raise SessionIsNotStartedError()
-    return chats[chatId]["net"]
-
-def setState(update, state):
-    chatId = update.effective_chat.id
-    if chatId not in chats:
-        raise SessionIsNotStartedError()
-    chats[chatId]["state"] = state
-
-def requireState(update):
-    chatId = update.effective_chat.id
-    if chatId not in chats:
-        raise SessionIsNotStartedError()
-    return chats[chatId]["state"]
-
-def getState(update):
-    """
-    :return str or None
-    """
-    chatId = update.effective_chat.id
-    if chatId in chats:
-        return chats[chatId]["state"]
-    return None
-
-def newNet(update):
-    chatId = update.effective_chat.id
-    chats[chatId] = {"net": dhelper.Net(), "state": "net-created"}
-
-def delNet(update):
-    chatId = update.effective_chat.id
-    del chats[chatId]
-
 # Define command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
-def start(bot, update):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-def help(bot, update):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
-
 def new(bot, update):
-    newNet(update)
+    tbot.Session.new(update)
 
 def addAlts(bot, update):
-    setState(update, "adding-alts")
+    session = tbot.Session.require(update)
+    session.setState(tbot.Session.ADDING_ALTS_STATE)
     update.message.reply_text("Введите альтернативы (одно на сообщение)")
 
 def addFactors(bot, update):
-    setState(update, "adding-factors")
+    session = tbot.Session.require(update)
+    session.setState(tbot.Session.ADDING_FACTORS_STATE)
     update.message.reply_text("Введите факторы (одно на сообщение)")
 
 def showAlts(bot, update):
-    setState(update, "shown-alts")
-    net = requireNet(update)
+    session = tbot.Session.require(update)
+    session.setState(tbot.Session.SHOWN_ALTS_STATE)
+    net = session.getNet()
     reply = "\n".join(alt.getName() for alt in net.getAlternativeIterator())
     if reply:
         update.message.reply_text(reply)
 
 def showFactors(bot, update):
-    setState(update, "shown-factors")
-    net = requireNet(update)
+    session = tbot.Session.require(update)
+    session.setState(tbot.Session.SHOWN_FACTORS_STATE)
+    net = session.getNet()
     reply = "\n".join(factor.getName() for factor in net.getFactorIterator())
     if reply:
         update.message.reply_text(reply)
 
 def setupAlts(bot, update):
-    setState(update, "setup-alts")
+    pass
+    #setState(update, "setup-alts")
 
 def setupFactors(bot, update):
-    setState(update, "setup-factors")
+    pass
+    #setState(update, "setup-factors")
 
 def decide(bot, update):
-    net = requireNet(update)
+    session = tbot.Session.require(update)
+    net = session.getNet()
     decision = net.decide()
     lines = [item[0].getName() + ": " + str(item[1]) for item in decision.sort()]
     reply = "\n".join(lines)
@@ -103,17 +62,16 @@ def decide(bot, update):
         update.message.reply_text(reply)
 
 def stop(bot, update):
-    #TODO: add if has net
-    delNet(update)
+    tbot.Session.stop(update)
 
 # Text handler to handle text messages
 def textHandler(bot, update):
-    state = getState(update) # can be None
-    if state == "adding-alts":
-        net = requireNet(update)
+    session = tbot.Session.require(update)
+    net = session.getNet()
+    state = session.getState()
+    if state == tbot.Session.ADDING_ALTS_STATE:
         net.addAlternative(dhelper.Alternative(update.message.text)) 
-    elif state == "adding-factors":
-        net = requireNet(update)
+    elif state == tbot.Session.ADDING_FACTORS_STATE:
         net.addFactor(dhelper.Factor(update.message.text))
 
 def askAltCompare(bot, update):
@@ -129,7 +87,7 @@ def askAltCompare(bot, update):
 def errorHandler(bot, update, error):
     try:
         raise error
-    except SessionIsNotStartedError:
+    except tbot.SessionIsNotStartedError:
         update.message.reply_text("Сначала введите команду /new")
     except telegram.TelegramError:
         # handle all other telegram related errors
@@ -139,8 +97,6 @@ def main():
     updater = Updater("634780311:AAHPQxaVkPv522pKwiMKxu5NrIzz1NVKXtY")
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("new", new))
     dp.add_handler(CommandHandler("addAlts", addAlts))
     dp.add_handler(CommandHandler("addFactors", addFactors))
