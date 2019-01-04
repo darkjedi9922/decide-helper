@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import dhelper
+import dhelper.base as dhelper
 import itertools
 
 def inputNumber(min=None, max=None, message=""):
