@@ -1,4 +1,4 @@
-from dhelper import *
+from .dhelper import *
 import pytest
 
 class TestMatrix:
