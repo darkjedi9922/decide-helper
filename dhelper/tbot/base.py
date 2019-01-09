@@ -1,4 +1,4 @@
-from . import base as dhelper
+from .. import base as dhelper
 import telegram
 
 class SessionIsNotStartedError(telegram.TelegramError):
@@ -45,6 +45,8 @@ class Session:
         self._net = dhelper.Net()
         self.setState(Session.NET_CREATED_STATE)
         self.setUpdate(update)
+        
+        self.activeGenerator = None
 
     def getNet(self):
         return self._net

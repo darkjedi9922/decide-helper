@@ -3,7 +3,7 @@
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import dhelper.base as dhelper
-import dhelper.tbot as tbot
+import dhelper.tbot.base as tbot
 import telegram
 import logging
 
