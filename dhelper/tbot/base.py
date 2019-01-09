@@ -6,12 +6,6 @@ class SessionIsNotStartedError(telegram.TelegramError):
         super().__init__("")
 
 class Session:
-    NET_CREATED_STATE = 0
-    SHOWN_ALTS_STATE = 1
-    SHOWN_FACTORS_STATE = 2
-    ADDING_ALTS_STATE = 3
-    ADDING_FACTORS_STATE = 4
-
     _instances = {}
 
     @classmethod
@@ -43,19 +37,12 @@ class Session:
 
     def __init__(self, update):
         self._net = dhelper.Net()
-        self.setState(Session.NET_CREATED_STATE)
         self.setUpdate(update)
         
         self.activeGenerator = None
 
     def getNet(self):
         return self._net
-
-    def getState(self):
-        return self._state
-
-    def setState(self, state):
-        self._state = state
 
     def setUpdate(self, update):
         self._update = update
