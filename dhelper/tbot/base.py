@@ -36,8 +36,13 @@ class Session:
 
     def __init__(self):
         self._net = dhelper.Net()
-        self.activeGenerator = None
+        self.setActiveDialog(None)
 
     def getNet(self):
         return self._net
 
+    def setActiveDialog(self, callback):
+        self._activeGenerator = callback
+
+    def getActiveDialog(self):
+        return self._activeGenerator

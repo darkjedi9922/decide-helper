@@ -19,17 +19,20 @@ logger = logging.getLogger(__name__)
 def textHandler(bot, update):
     session = tbot.Session.require(update)
     
-    if session.activeGenerator:
+    dialog = session.getActiveDialog()
+    if dialog:
         try:
-            question = session.activeGenerator.send(update.message.text)
+            question = dialog.send(update.message.text)
+            
             # Вопроса может не быть, тогда генератор просто ожидает ответ.
             if question:
                 update.message.reply_text(question)
+
             return
         except StopIteration:
-            session.activeGenerator = None
+            session.setActiveDialog(None)
         except Exception:
-            session.activeGenerator = None
+            session.setActiveDialog(None)
             raise
 
 def errorHandler(bot, update, error):
@@ -57,7 +60,7 @@ def setCommandHandler(updater, command, callback):
             # генератор нужно отключить.
             session = tbot.Session.get(update)
             if session:
-                session.activeGenerator = None
+                session.setActiveDialog(None)
 
             # Так как это генератор, а дальше у нас действия по работе с
             # коллбеком как с генератором, делать нам больше тут нечего.
@@ -66,23 +69,23 @@ def setCommandHandler(updater, command, callback):
         # Иначе, если эта команда запускает новый генератор, нужно активировать
         # этот новый генератор.
         session = tbot.Session.require(update)
-        session.activeGenerator = result
+        session.setActiveDialog(result)
         try:
 
             # Чтобы далее передавать значения в генератор через .send(), нам
             # нужно дойти до первого возвращаемого через yield вопроса.
             # Этот кусок кода будет выполнен только первый раз при выполнении
             # этого ненератора.
-            firstQuestion = next(session.activeGenerator)
+            firstQuestion = next(result)
 
             # Вопроса может не быть, тогда генератор просто ожидает ответ.
             if firstQuestion:
                 update.message.reply_text(firstQuestion)
 
         except StopIteration:
-            session.activeGenerator = None
+            session.setActiveDialog(None)
         except Exception:
-            session.activeGenerator = None
+            session.setActiveDialog(None)
             raise
 
     dp = updater.dispatcher
