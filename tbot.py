@@ -18,7 +18,8 @@ def errorHandler(bot, update, error):
     try:
         raise error
     except tbot.SessionIsNotStartedError:
-        update.message.reply_text("Сначала введите команду /new")
+        chatId = update.effective_chat.id
+        bot.send_message(chatId, "Сначала введите команду /new")
     except telegram.TelegramError:
         # handle all other telegram related errors
         logger.warning('Update "%s" caused error "%s"', update, error)

@@ -8,7 +8,8 @@ def new(bot, update):
 def addAlts(bot, update):
     session = tbot.Session.require(update)
     net = session.getNet()
-    update.message.reply_text("Введите альтернативы (одно на сообщение)")
+    chatId = session.getChatId()
+    bot.send_message(chatId, "Введите альтернативы (одно на сообщение)")
     while True:
         name = yield None
         net.addAlternative(dhelper.Alternative(name))
@@ -16,7 +17,8 @@ def addAlts(bot, update):
 def addFactors(bot, update):
     session = tbot.Session.require(update)
     net = session.getNet()
-    update.message.reply_text("Введите факторы (одно на сообщение)")
+    chatId = session.getChatId()
+    bot.send_message(chatId, "Введите факторы (одно на сообщение)")
     while True:
         name = yield None
         net.addFactor(dhelper.Factor(name))
@@ -26,14 +28,16 @@ def showAlts(bot, update):
     net = session.getNet()
     reply = "\n".join(alt.getName() for alt in net.getAlternativeIterator())
     if reply:
-        update.message.reply_text(reply)
+        chatId = session.getChatId()
+        bot.send_message(chatId, reply)
 
 def showFactors(bot, update):
     session = tbot.Session.require(update)
     net = session.getNet()
     reply = "\n".join(factor.getName() for factor in net.getFactorIterator())
     if reply:
-        update.message.reply_text(reply)
+        chatId = session.getChatId()
+        bot.send_message(chatId, reply)
 
 def askingAltSetup(bot, update):
     session = tbot.Session.require(update)
@@ -70,7 +74,8 @@ def decide(bot, update):
     lines = [item[0].getName() + ": " + str(item[1]) for item in decision.sort()]
     reply = "\n".join(lines)
     if reply:
-        update.message.reply_text(reply)
+        chatId = session.getChatId()
+        bot.send_message(chatId, reply)
 
 def stop(bot, update):
     tbot.Session.stop(update)

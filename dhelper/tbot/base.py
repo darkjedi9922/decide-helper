@@ -14,7 +14,7 @@ class Session:
     @classmethod
     def new(cls, update):
         chatId = update.effective_chat.id
-        Session._instances[chatId] = Session()
+        Session._instances[chatId] = Session(chatId)
 
     @classmethod
     def get(cls, update):
@@ -37,9 +37,13 @@ class Session:
         if chatId in Session._instances:
             del Session._instances[chatId]
 
-    def __init__(self):
+    def __init__(self, chatId):
         self._net = dhelper.Net()
+        self._chatId = chatId
         self.setActiveDialog(None)
+
+    def getChatId(self):
+        return self._chatId
 
     def getNet(self):
         return self._net
@@ -65,7 +69,8 @@ class DialogDispatcher(Dispatcher):
                     
                     # Вопроса может не быть, тогда генератор просто ожидает ответ.
                     if question:
-                        update.message.reply_text(question)
+                        chatId = session.getChatId()
+                        bot.send_message(chatId, question)
 
                     return
                 except StopIteration:
@@ -142,7 +147,8 @@ class DialogDispatcher(Dispatcher):
 
                 # Вопроса может не быть, тогда генератор просто ожидает ответ.
                 if firstQuestion:
-                    update.message.reply_text(firstQuestion)
+                    chatId = session.getChatId()
+                    bot.send_message(chatId, firstQuestion)
 
             except StopIteration:
                 session.setActiveDialog(None)
