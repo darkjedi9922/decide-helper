@@ -1,39 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 import dhelper.base as dhelper
 import dhelper.tbot.base as tbot
 import dhelper.tbot.actions as actions
 import telegram
 import logging
-import inspect
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
-# Text handler to handle text messages
-def textHandler(bot, update):
-    session = tbot.Session.require(update)
-    
-    dialog = session.getActiveDialog()
-    if dialog:
-        try:
-            question = dialog.send(update.message.text)
-            
-            # Вопроса может не быть, тогда генератор просто ожидает ответ.
-            if question:
-                update.message.reply_text(question)
-
-            return
-        except StopIteration:
-            session.setActiveDialog(None)
-        except Exception:
-            session.setActiveDialog(None)
-            raise
 
 def errorHandler(bot, update, error):
     try:
@@ -44,68 +23,22 @@ def errorHandler(bot, update, error):
         # handle all other telegram related errors
         logger.warning('Update "%s" caused error "%s"', update, error)
 
-def setCommandHandler(updater, command, callback):
-
-    # Непосредственно выполняться как команда, собственно, будет wrapper.
-    def wrapper(bot, update):
-
-        # Коллбек выполняется независимо от того, генератор это или нет.
-        # Если это не генератор, он просто вернет None.
-        result = callback(bot, update)
-
-        if not inspect.isgenerator(result):
-
-            # Если был включен генератор, и пользователь перебил его вызовом
-            # новой команды, установленной с помощью этой функции, тот 
-            # генератор нужно отключить.
-            session = tbot.Session.get(update)
-            if session:
-                session.setActiveDialog(None)
-
-            # Так как это генератор, а дальше у нас действия по работе с
-            # коллбеком как с генератором, делать нам больше тут нечего.
-            return
-
-        # Иначе, если эта команда запускает новый генератор, нужно активировать
-        # этот новый генератор.
-        session = tbot.Session.require(update)
-        session.setActiveDialog(result)
-        try:
-
-            # Чтобы далее передавать значения в генератор через .send(), нам
-            # нужно дойти до первого возвращаемого через yield вопроса.
-            # Этот кусок кода будет выполнен только первый раз при выполнении
-            # этого ненератора.
-            firstQuestion = next(result)
-
-            # Вопроса может не быть, тогда генератор просто ожидает ответ.
-            if firstQuestion:
-                update.message.reply_text(firstQuestion)
-
-        except StopIteration:
-            session.setActiveDialog(None)
-        except Exception:
-            session.setActiveDialog(None)
-            raise
-
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler(command, wrapper))
-
 def main():
     updater = Updater("634780311:AAHPQxaVkPv522pKwiMKxu5NrIzz1NVKXtY")
     dp = updater.dispatcher
+    dp = tbot.DialogDispatcher(dp.bot, dp.update_queue)
+    updater.dispatcher = dp
 
-    setCommandHandler(updater, "new", actions.new)
-    setCommandHandler(updater, "addAlts", actions.addAlts)
-    setCommandHandler(updater, "addFactors", actions.addFactors)
-    setCommandHandler(updater, "showAlts", actions.showAlts)
-    setCommandHandler(updater, "showFactors", actions.showFactors)
-    setCommandHandler(updater, "setupAlts", actions.askingAltSetup)
-    setCommandHandler(updater, "setupFactors", actions.askingFactorSetup)
-    setCommandHandler(updater, "decide", actions.decide)
-    setCommandHandler(updater, "stop", actions.stop)
+    dp.add_handler(CommandHandler("new", actions.new))
+    dp.add_handler(CommandHandler("addAlts", actions.addAlts))
+    dp.add_handler(CommandHandler("addFactors", actions.addFactors))
+    dp.add_handler(CommandHandler("showAlts", actions.showAlts))
+    dp.add_handler(CommandHandler("showFactors", actions.showFactors))
+    dp.add_handler(CommandHandler("setupAlts", actions.askingAltSetup))
+    dp.add_handler(CommandHandler("setupFactors", actions.askingFactorSetup))
+    dp.add_handler(CommandHandler("decide", actions.decide))
+    dp.add_handler(CommandHandler("stop", actions.stop))
 
-    dp.add_handler(MessageHandler(Filters.text, textHandler))
     dp.add_error_handler(errorHandler)
 
     # Start the Bot
