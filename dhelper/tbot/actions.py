@@ -57,7 +57,7 @@ def askingAltSetup(bot, update):
     session = tbot.Session.require(update)
     message = "Для ввода в процентах (от 0 до 1) введите 1, для ввода в числах введите 0: "
     isProcent = yield message
-    isProcent = bool(isProcent)
+    isProcent = True if isProcent == "1" else False
     net = session.getNet()
     for factor in net.getFactorIterator():
         alterCombinations = itertools.combinations(net.getAlternativeIterator(), 2)
@@ -72,7 +72,7 @@ def askingFactorSetup(bot, update):
     session = tbot.Session.require(update)
     message = "Для ввода в процентах (от 0 до 1) введите 1, для ввода в числах введите 0: "
     isProcent = yield message
-    isProcent = bool(isProcent)
+    isProcent = True if isProcent == "1" else False
     net = session.getNet()
     combinations = itertools.combinations(net.getFactorIterator(), 2)
     for comb in combinations:
