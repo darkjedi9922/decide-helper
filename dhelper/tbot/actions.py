@@ -1,6 +1,20 @@
+from telegram import ReplyKeyboardMarkup
 from ..tbot import base as tbot
 from .. import base as dhelper
 import itertools
+
+def start(bot, update):
+    # Кнопочки меню, которое будет показано внизу экрана
+    custom_keyboard = [
+        ['/new', '/decide', '/stop'],
+        ['/addAlts', '/addFactors'],
+        ['/showAlts', '/showFactors'],
+        ['/setupAlts', '/setupFactors']
+    ]
+    chat_id = update.effective_chat.id
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+    bot.send_message(chat_id, "Here must be some hello message...", 
+        reply_markup=reply_markup)
 
 def new(bot, update):
     tbot.Session.new(update)

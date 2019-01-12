@@ -30,6 +30,7 @@ def main():
     dp = tbot.DialogDispatcher(dp.bot, dp.update_queue)
     updater.dispatcher = dp
 
+    dp.add_handler(CommandHandler("start", actions.start))
     dp.add_handler(CommandHandler("new", actions.new))
     dp.add_handler(CommandHandler("addAlts", actions.addAlts))
     dp.add_handler(CommandHandler("addFactors", actions.addFactors))
