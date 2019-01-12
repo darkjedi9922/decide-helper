@@ -13,8 +13,18 @@ def start(bot, update):
     ]
     chat_id = update.effective_chat.id
     reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
-    bot.send_message(chat_id, "Here must be some hello message...", 
-        reply_markup=reply_markup)
+    message = """
+    Использование: 
+    1. Выбрать /new для решения новой задачи
+    2. Ввести альтернативы и факторы с помощью /addAlts и /addFactors соответственно.
+    3. Установить отношения альтернатив и факторов с помощью /setupAlts и /setupFactors соответственно.
+    4. /decide для расчета решения.
+
+    Дополнительно:
+    * /showAlts и /showFactors выводят список введенных альтернатив и факторов.
+    * /stop заканчивает/прерывает текущую задачу.
+    """
+    bot.send_message(chat_id, message, reply_markup=reply_markup)
 
 def new(bot, update):
     tbot.Session.new(update)
